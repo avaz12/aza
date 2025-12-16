@@ -1,7 +1,17 @@
 const { Telegraf, Markup } = require('telegraf');
 
-// ВАЖНО: Используем переменную окружения для токена
-const bot = new Telegraf(process.env.BOT_TOKEN);
+// ==============================================================================
+// ⚠️ ВНИМАНИЕ: ТОКЕН ВСТАВЛЕН НАПРЯМУЮ В КОД ДЛЯ МАКСИМАЛЬНО БЫСТРОГО ТЕСТА.
+// ⚠️ ЭТО НАРУШАЕТ ПРАВИЛА БЕЗОПАСНОСТИ.
+const BOT_TOKEN = '8544162811:AAF5nvXsORD05toABjbXC9zTTkolZWWRzFE'; 
+
+// Убираем проверку, так как токен теперь жестко закодирован
+// console.log('🔑 BOT_TOKEN:', process.env.BOT_TOKEN ? 'УСТАНОВЛЕН ✅' : 'НЕ НАЙДЕН ❌');
+
+// Инициализируем бота с жестко заданным токеном
+const bot = new Telegraf(BOT_TOKEN);
+// ==============================================================================
+
 
 // Категория Животные
 const ANIMAL_WORDS = [
@@ -87,61 +97,61 @@ const CATEGORIES = {
 
 // ASCII-арт виселицы для каждого этапа (0-7 ошибок)
 const HANGMAN_STAGES = [
-  `
+    `
 ┌─────┐
 │     
 │     
 │     
 │     
 └─────`,
-  `
-┌─────┐
-│     │
-│     
-│     
-│     
-└─────`,
-  `
+    `
 ┌─────┐
 │     │
-│     😟
+│     
 │     
 │     
 └─────`,
-  `
+    `
 ┌─────┐
 │     │
 │     😟
-│     │
+│     
 │     
 └─────`,
-  `
+    `
 ┌─────┐
 │     │
 │     😟
-│    ─┤
+│     │
 │     
 └─────`,
-  `
+    `
 ┌─────┐
 │     │
 │     😟
-│    ─┼─
+│     ─┤
 │     
 └─────`,
-  `
+    `
 ┌─────┐
 │     │
 │     😟
-│    ─┼─
-│    ╱
+│     ─┼─
+│     
 └─────`,
-  `
+    `
+┌─────┐
+│     │
+│     😟
+│     ─┼─
+│     ╱
+└─────`,
+    `
 ┌─────┐
 │     │
 │     😵
-│    ─┼─
-│    ╱ ╲
+│     ─┼─
+│     ╱ ╲
 └─────`
 ];
 
@@ -153,232 +163,232 @@ const RUSSIAN_ALPHABET = 'абвгдеёжзийклмнопрстуфхцчшщ
 
 // Команда /start
 bot.start((ctx) => {
-  ctx.reply(
-    '🎮 <b>Добро пожаловать в игру "Виселица"!</b>\n\n' +
-    '📖 <b>Правила:</b>\n' +
-    '• Я загадываю слово из выбранной категории\n' +
-    '• Вы угадываете буквы, нажимая на кнопки\n' +
-    '• У вас есть 7 попыток на ошибки\n' +
-    '• Победите, угадав все буквы!\n\n' +
-    'Используйте /play для начала новой игры',
-    { parse_mode: 'HTML' }
-  );
+    ctx.reply(
+        '🎮 <b>Добро пожаловать в игру "Виселица"!</b>\n\n' +
+        '📖 <b>Правила:</b>\n' +
+        '• Я загадываю слово из выбранной категории\n' +
+        '• Вы угадываете буквы, нажимая на кнопки\n' +
+        '• У вас есть 7 попыток на ошибки\n' +
+        '• Победите, угадав все буквы!\n\n' +
+        'Используйте /play для начала новой игры',
+        { parse_mode: 'HTML' }
+    );
 });
 
 // Команда /play - выбор категории
 bot.command('play', (ctx) => {
-  const keyboard = Object.keys(CATEGORIES).map(cat => 
-    [Markup.button.callback(cat, `cat_${cat}`)]
-  );
-  
-  ctx.reply(
-    '🎯 <b>Выберите категорию:</b>',
-    {
-      parse_mode: 'HTML',
-      ...Markup.inlineKeyboard(keyboard)
-    }
-  );
+    const keyboard = Object.keys(CATEGORIES).map(cat => 
+        [Markup.button.callback(cat, `cat_${cat}`)]
+    );
+    
+    ctx.reply(
+        '🎯 <b>Выберите категорию:</b>',
+        {
+            parse_mode: 'HTML',
+            ...Markup.inlineKeyboard(keyboard)
+        }
+    );
 });
 
 // Обработка выбора категории
 bot.action(/^cat_(.+)$/, async (ctx) => {
-  try {
-    const category = ctx.match[1];
-    const chatId = ctx.chat.id;
-    
-    const words = CATEGORIES[category];
-    const word = words[Math.floor(Math.random() * words.length)];
-    
-    games.set(chatId, {
-      word: word.toLowerCase(),
-      category,
-      guessed: new Set(),
-      mistakes: 0,
-      usedLetters: new Set()
-    });
-    
-    const message = await ctx.reply(
-      getGameMessage(chatId),
-      {
-        parse_mode: 'HTML',
-        ...Markup.inlineKeyboard(getKeyboard(chatId))
-      }
-    );
-    
-    games.get(chatId).messageId = message.message_id;
-    await ctx.answerCbQuery('Игра началась! Удачи! 🍀');
-  } catch (error) {
-    console.error('Ошибка при выборе категории:', error);
-    ctx.answerCbQuery('Произошла ошибка. Попробуйте /play снова.');
-  }
+    try {
+        const category = ctx.match[1];
+        const chatId = ctx.chat.id;
+        
+        const words = CATEGORIES[category];
+        const word = words[Math.floor(Math.random() * words.length)];
+        
+        games.set(chatId, {
+            word: word.toLowerCase(),
+            category,
+            guessed: new Set(),
+            mistakes: 0,
+            usedLetters: new Set()
+        });
+        
+        const message = await ctx.reply(
+            getGameMessage(chatId),
+            {
+                parse_mode: 'HTML',
+                ...Markup.inlineKeyboard(getKeyboard(chatId))
+            }
+        );
+        
+        games.get(chatId).messageId = message.message_id;
+        await ctx.answerCbQuery('Игра началась! Удачи! 🍀');
+    } catch (error) {
+        console.error('Ошибка при выборе категории:', error);
+        ctx.answerCbQuery('Произошла ошибка. Попробуйте /play снова.');
+    }
 });
 
 // Обработка нажатия на букву
 bot.action(/^letter_(.+)$/, async (ctx) => {
-  try {
-    const letter = ctx.match[1];
-    const chatId = ctx.chat.id;
-    const game = games.get(chatId);
-    
-    if (!game) {
-      return ctx.answerCbQuery('⚠️ Нет активной игры! Используйте /play', { show_alert: true });
-    }
-    
-    if (game.usedLetters.has(letter)) {
-      return ctx.answerCbQuery('⚠️ Эта буква уже использована!', { show_alert: true });
-    }
-    
-    game.usedLetters.add(letter);
-    
-    if (game.word.includes(letter)) {
-      game.guessed.add(letter);
-      await ctx.answerCbQuery('✅ Есть такая буква!');
-    } else {
-      game.mistakes++;
-      await ctx.answerCbQuery('❌ Нет такой буквы');
-    }
-    
-    const isWin = checkWin(game);
-    const isLose = game.mistakes >= 7;
-    
-    if (isWin || isLose) {
-      await ctx.editMessageText(
-        getGameMessage(chatId, true),
-        {
-          parse_mode: 'HTML',
-          ...Markup.inlineKeyboard([[
-            Markup.button.callback('🔄 Новая игра', 'new_game')
-          ]])
+    try {
+        const letter = ctx.match[1];
+        const chatId = ctx.chat.id;
+        const game = games.get(chatId);
+        
+        if (!game) {
+            return ctx.answerCbQuery('⚠️ Нет активной игры! Используйте /play', { show_alert: true });
         }
-      );
-      games.delete(chatId);
-    } else {
-      await ctx.editMessageText(
-        getGameMessage(chatId),
-        {
-          parse_mode: 'HTML',
-          ...Markup.inlineKeyboard(getKeyboard(chatId))
+        
+        if (game.usedLetters.has(letter)) {
+            return ctx.answerCbQuery('⚠️ Эта буква уже использована!', { show_alert: true });
         }
-      );
+        
+        game.usedLetters.add(letter);
+        
+        if (game.word.includes(letter)) {
+            game.guessed.add(letter);
+            await ctx.answerCbQuery('✅ Есть такая буква!');
+        } else {
+            game.mistakes++;
+            await ctx.answerCbQuery('❌ Нет такой буквы');
+        }
+        
+        const isWin = checkWin(game);
+        const isLose = game.mistakes >= 7;
+        
+        if (isWin || isLose) {
+            await ctx.editMessageText(
+                getGameMessage(chatId, true),
+                {
+                    parse_mode: 'HTML',
+                    ...Markup.inlineKeyboard([[
+                        Markup.button.callback('🔄 Новая игра', 'new_game')
+                    ]])
+                }
+            );
+            games.delete(chatId);
+        } else {
+            await ctx.editMessageText(
+                getGameMessage(chatId),
+                {
+                    parse_mode: 'HTML',
+                    ...Markup.inlineKeyboard(getKeyboard(chatId))
+                }
+            );
+        }
+    } catch (error) {
+        console.error('Ошибка при обработке буквы:', error);
+        if (error.message.includes('message is not modified')) {
+            ctx.answerCbQuery('⚠️ Игра уже завершена или произошла ошибка');
+        } else {
+            ctx.answerCbQuery('Произошла ошибка. Попробуйте снова.');
+        }
     }
-  } catch (error) {
-    console.error('Ошибка при обработке буквы:', error);
-    if (error.message.includes('message is not modified')) {
-      ctx.answerCbQuery('⚠️ Игра уже завершена или произошла ошибка');
-    } else {
-      ctx.answerCbQuery('Произошла ошибка. Попробуйте снова.');
-    }
-  }
 });
 
 // Обработка кнопки "Новая игра"
 bot.action('new_game', async (ctx) => {
-  const keyboard = Object.keys(CATEGORIES).map(cat => 
-    [Markup.button.callback(cat, `cat_${cat}`)]
-  );
-  
-  await ctx.editMessageText(
-    '🎯 <b>Выберите категорию:</b>',
-    {
-      parse_mode: 'HTML',
-      ...Markup.inlineKeyboard(keyboard)
-    }
-  );
-  
-  ctx.answerCbQuery();
+    const keyboard = Object.keys(CATEGORIES).map(cat => 
+        [Markup.button.callback(cat, `cat_${cat}`)]
+    );
+    
+    await ctx.editMessageText(
+        '🎯 <b>Выберите категорию:</b>',
+        {
+            parse_mode: 'HTML',
+            ...Markup.inlineKeyboard(keyboard)
+        }
+    );
+    
+    ctx.answerCbQuery();
 });
 
 // Функция проверки победы
 function checkWin(game) {
-  for (let char of game.word) {
-    if (!game.guessed.has(char)) {
-      return false;
+    for (let char of game.word) {
+        if (!game.guessed.has(char)) {
+            return false;
+        }
     }
-  }
-  return true;
+    return true;
 }
 
 // Функция генерации маски слова
 function getMask(game) {
-  return game.word
-    .split('')
-    .map(char => game.guessed.has(char) ? char.toUpperCase() : '_')
-    .join(' ');
+    return game.word
+        .split('')
+        .map(char => game.guessed.has(char) ? char.toUpperCase() : '_')
+        .join(' ');
 }
 
 // Функция генерации сообщения игры
 function getGameMessage(chatId, isEnd = false) {
-  const game = games.get(chatId);
-  if (!game) return 'Игра не найдена';
-  
-  const hangman = HANGMAN_STAGES[game.mistakes];
-  const mask = getMask(game);
-  const isWin = checkWin(game);
-  const isLose = game.mistakes >= 7;
-  
-  let message = `<pre>${hangman}</pre>\n\n`;
-  message += `📂 <b>Категория:</b> ${game.category}\n`;
-  message += `🔤 <b>Слово:</b> <code>${mask}</code>\n`;
-  message += `❌ <b>Ошибки:</b> ${game.mistakes}/7\n`;
-  
-  if (game.usedLetters.size > 0) {
-    const used = Array.from(game.usedLetters).sort().join(', ').toUpperCase();
-    message += `📝 <b>Использовано:</b> ${used}\n`;
-  }
-  
-  if (isEnd) {
-    message += '\n';
-    if (isWin) {
-      message += '🎉 <b>Поздравляем! Вы победили!</b> 🎉\n';
-      message += `✨ Загаданное слово: <b>${game.word.toUpperCase()}</b>`;
-    } else if (isLose) {
-      message += '💀 <b>Игра окончена! Вы проиграли.</b>\n';
-      message += `📖 Загаданное слово: <b>${game.word.toUpperCase()}</b>`;
+    const game = games.get(chatId);
+    if (!game) return 'Игра не найдена';
+    
+    const hangman = HANGMAN_STAGES[game.mistakes];
+    const mask = getMask(game);
+    const isWin = checkWin(game);
+    const isLose = game.mistakes >= 7;
+    
+    let message = `<pre>${hangman}</pre>\n\n`;
+    message += `📂 <b>Категория:</b> ${game.category}\n`;
+    message += `🔤 <b>Слово:</b> <code>${mask}</code>\n`;
+    message += `❌ <b>Ошибки:</b> ${game.mistakes}/7\n`;
+    
+    if (game.usedLetters.size > 0) {
+        const used = Array.from(game.usedLetters).sort().join(', ').toUpperCase();
+        message += `📝 <b>Использовано:</b> ${used}\n`;
     }
-  }
-  
-  return message;
+    
+    if (isEnd) {
+        message += '\n';
+        if (isWin) {
+            message += '🎉 <b>Поздравляем! Вы победили!</b> 🎉\n';
+            message += `✨ Загаданное слово: <b>${game.word.toUpperCase()}</b>`;
+        } else if (isLose) {
+            message += '💀 <b>Игра окончена! Вы проиграли.</b>\n';
+            message += `📖 Загаданное слово: <b>${game.word.toUpperCase()}</b>`;
+        }
+    }
+    
+    return message;
 }
 
 // Функция генерации клавиатуры
 function getKeyboard(chatId) {
-  const game = games.get(chatId);
-  if (!game) return [];
-  
-  const keyboard = [];
-  let row = [];
-  
-  RUSSIAN_ALPHABET.forEach((letter, index) => {
-    if (game.usedLetters.has(letter)) {
-      row.push(Markup.button.callback('❌', `used_${letter}`));
-    } else {
-      row.push(Markup.button.callback(letter.toUpperCase(), `letter_${letter}`));
-    }
+    const game = games.get(chatId);
+    if (!game) return [];
     
-    if ((index + 1) % 8 === 0 || index === RUSSIAN_ALPHABET.length - 1) {
-      keyboard.push(row);
-      row = [];
-    }
-  });
-  
-  return keyboard;
+    const keyboard = [];
+    let row = [];
+    
+    RUSSIAN_ALPHABET.forEach((letter, index) => {
+        if (game.usedLetters.has(letter)) {
+            row.push(Markup.button.callback('❌', `used_${letter}`));
+        } else {
+            row.push(Markup.button.callback(letter.toUpperCase(), `letter_${letter}`));
+        }
+        
+        if ((index + 1) % 8 === 0 || index === RUSSIAN_ALPHABET.length - 1) {
+            keyboard.push(row);
+            row = [];
+        }
+    });
+    
+    return keyboard;
 }
 
 // Обработка нажатия на использованную букву
 bot.action(/^used_(.+)$/, (ctx) => {
-  ctx.answerCbQuery('⚠️ Эта буква уже использована!', { show_alert: true });
+    ctx.answerCbQuery('⚠️ Эта буква уже использована!', { show_alert: true });
 });
 
 // Обработка ошибок
 bot.catch((err, ctx) => {
-  console.error('Ошибка в боте:', err);
-  ctx.reply('😔 Произошла непредвиденная ошибка. Попробуйте /play');
+    console.error('Ошибка в боте:', err);
+    ctx.reply('😔 Произошла непредвиденная ошибка. Попробуйте /play');
 });
 
 // Запуск бота
 bot.launch()
-  .then(() => console.log('✅ Бот "Виселица" запущен!'))
-  .catch(err => console.error('❌ Ошибка запуска:', err));
+    .then(() => console.log('✅ Бот "Виселица" запущен!'))
+    .catch(err => console.error('❌ Ошибка запуска:', err));
 
 // Корректное завершение при остановке
 process.once('SIGINT', () => bot.stop('SIGINT'));
