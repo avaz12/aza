@@ -1,20 +1,10 @@
 {
-  "name": "hangman-telegram-bot",
+  "name": "hangman-bot",
   "version": "1.0.0",
-  "description": "Telegram bot for the Hangman game using Telegraf.",
-  "main": "hangman_bot.js",
+  "main": "bot.js",
   "scripts": {
-    "start": "node hangman_bot.js" 
+    "start": "node bot.js"
   },
-  "keywords": [
-    "telegram",
-    "bot",
-    "telegraf",
-    "nodejs",
-    "hangman"
-  ],
-  "author": "",
-  "license": "ISC",
   "dependencies": {
     "telegraf": "^4.15.0"
   }
