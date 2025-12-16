@@ -1,9 +1,9 @@
 const { Telegraf, Markup } = require('telegraf');
 
 //токен бота
-const bot = new Telegraf('AAF5nvXsORD05toABjbXC9zTTkolZWWRzFE');
+const bot = new Telegraf('8544162811:AAF5nvXsORD05toABjbXC9zTTkolZWWRzFE');
 
-// --- 1. МАССИВЫ СЛОВ --------------------------------
+//  МАССИВЫ СЛОВ 
 
 // Категория  Животные 
 const ANIMAL_WORDS = [
